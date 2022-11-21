@@ -1,24 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter, Route, Switch, Redirect,
+} from 'react-router-dom';
+import { useEffect } from 'react';
+import Navbar from './components/Navbar/Navbar';
+import Home from './pages/home/Home';
+import Login from './pages/login/Login';
+import Signup from './pages/signup/Signup';
+import { useAuthContext } from './hooks/useAuthContext';
 
 function App() {
+  const { authIsReady, user } = useAuthContext();
+
+  useEffect(() => {
+    document.title = 'Count Your Money!';
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {authIsReady && (
+        <BrowserRouter>
+          <Navbar />
+          <Switch>
+            <Route exact path="/">
+              {!user && <Redirect to="/login" />}
+              {user && <Home />}
+            </Route>
+            <Route path="/signup">
+              {user && <Redirect to="/" />}
+              {!user && <Signup />}
+            </Route>
+            <Route path="/login">
+              {user && <Redirect to="/" />}
+              {!user && <Login />}
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      )}
     </div>
   );
 }
